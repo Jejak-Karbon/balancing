@@ -8,4 +8,5 @@ import (
 
 func NewHttp(e *echo.Echo, f *factory.Factory) {
 	product.NewHandler(f).Route(e.Group("/products"))
+
 }
