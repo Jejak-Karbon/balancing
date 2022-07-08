@@ -15,7 +15,7 @@ func (ProductCarbonAbsorption) TableName() string {
 type ProductCarbonAbsorption struct {
 	ID       		uint   	`gorm:"primarykey;autoIncrement"`
 	UserID    	 	uint 	`json:"user_id" gorm:"not null"`
-	CarbonAbsorptionID    	 	uint 	`json:"carbon_absorption_id" gorm:"not null"`
+	CategoryCarbonAbsorptionID    	 	uint 	`json:"category_carbon_absorption_id" gorm:"not null"`
 	Name    	 	string 	`json:"name" gorm:"size:200;not null"`
 	Description     string 	`json:"description" gorm:"not null"`
 	Amount	float32 `json:"amount"  gorm:"not null"`
