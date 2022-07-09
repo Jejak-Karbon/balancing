@@ -18,12 +18,28 @@ type service struct {
 
 type Service interface {
 	Create(ctx context.Context, user_id uint, payload *dto.CreateUserProductCarbonAbsorption) (string, error)
+	Find(ctx context.Context,filter *dto.FilterUserProductCarbonAbsorption,payload *dto.SearchGetRequest) (*dto.SearchGetResponse[model.UserProductCarbonAbsorption], error)
 }
 
 func NewService(f *factory.Factory) Service {
 	return &service{
 		UserProductCarbonAbsorptionRepository: f.UserProductCarbonAbsorptionRepository,
 	}
+}
+
+func (s *service) Find(ctx context.Context,filter *dto.FilterUserProductCarbonAbsorption,payload *dto.SearchGetRequest) (*dto.SearchGetResponse[model.UserProductCarbonAbsorption], error) {
+
+	UserProductCarbonAbsorptions, info, err := s.UserProductCarbonAbsorptionRepository.Find(ctx,filter,payload, &payload.Pagination)
+	
+	if err != nil {
+		return nil, res.ErrorBuilder(&res.ErrorConstant.InternalServerError, err)
+	}
+
+	result := new(dto.SearchGetResponse[model.UserProductCarbonAbsorption])
+	result.Datas = UserProductCarbonAbsorptions
+	result.PaginationInfo = *info
+
+	return result, nil
 }
 
 func (s *service) Create(ctx context.Context, user_id uint, payload *dto.CreateUserProductCarbonAbsorption) (string, error) {
@@ -35,7 +51,6 @@ func (s *service) Create(ctx context.Context, user_id uint, payload *dto.CreateU
 		return "", res.ErrorBuilder(&res.ErrorConstant.InternalServerError, err)
 	}
 
-	amount := 2.383
 	message :=  "selamat kamu berhasil melakukan penyerapan emisi"
 
 	return message, nil

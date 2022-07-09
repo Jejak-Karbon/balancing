@@ -21,6 +21,35 @@ func NewHandler(f *factory.Factory) *handler {
 	}
 }
 
+func (h *handler) Get(c echo.Context) error {
+
+	payload := new(dto.SearchGetRequest)
+	if err := c.Bind(payload); err != nil {
+		return res.ErrorBuilder(&res.ErrorConstant.BadRequest, err).Send(c)
+	}
+
+	if err := c.Validate(payload); err != nil {
+		return res.ErrorBuilder(&res.ErrorConstant.Validation, err).Send(c)
+	}
+
+	filter := new(dto.FilterUserProductCarbonAbsorption)
+
+	if err := c.Bind(filter); err != nil {
+		return res.ErrorBuilder(&res.ErrorConstant.BadRequest, err).Send(c)
+	}
+
+	if err := c.Validate(filter); err != nil {
+		return res.ErrorBuilder(&res.ErrorConstant.Validation, err).Send(c)
+	}
+	
+	result, err := h.service.Find(c.Request().Context(),filter, payload)
+	if err != nil {
+		return res.ErrorResponse(err).Send(c)
+	}
+
+	return res.CustomSuccessBuilder(200, result.Datas, "Get user carbon absorption success", &result.PaginationInfo).Send(c)
+}
+
 func (h *handler) Create(c echo.Context) error {
 
 	payloadToken := middleware.GetIDFromToken(c)
