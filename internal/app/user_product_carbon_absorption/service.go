@@ -1,6 +1,7 @@
 package user_product_carbon_absorption
 
 import (
+	"os"
 	"fmt"
 	"context"
 	"encoding/json"
@@ -46,6 +47,7 @@ func (s *service) Find(ctx context.Context,filter *dto.FilterUserProductCarbonAb
 
 		url = fmt.Sprintf("http://localhost:8080/users/%d", value.UserID)
 		request, err := http.NewRequest("GET", url, nil)
+		request.Header.Set("Authorization", os.Getenv("RANDOM_KEY"))
 		if err != nil {
 			return nil, err
 		}
