@@ -3,6 +3,8 @@ package user_product_carbon_absorption
 import (
 	"fmt"
 	"context"
+	"encoding/json"
+	"net/http"
 
 	"github.com/born2ngopi/alterra/basic-echo-mvc/internal/dto"
 	"github.com/born2ngopi/alterra/basic-echo-mvc/internal/factory"
@@ -18,7 +20,7 @@ type service struct {
 
 type Service interface {
 	Create(ctx context.Context, user_id uint, payload *dto.CreateUserProductCarbonAbsorption) (string, error)
-	Find(ctx context.Context,filter *dto.FilterUserProductCarbonAbsorption,payload *dto.SearchGetRequest) (*dto.SearchGetResponse[model.UserProductCarbonAbsorption], error)
+	Find(ctx context.Context,filter *dto.FilterUserProductCarbonAbsorption,payload *dto.SearchGetRequest) (*dto.SearchGetResponse[dto.UserProductCarbonAbsorptionResponse], error)
 }
 
 func NewService(f *factory.Factory) Service {
@@ -27,7 +29,7 @@ func NewService(f *factory.Factory) Service {
 	}
 }
 
-func (s *service) Find(ctx context.Context,filter *dto.FilterUserProductCarbonAbsorption,payload *dto.SearchGetRequest) (*dto.SearchGetResponse[model.UserProductCarbonAbsorption], error) {
+func (s *service) Find(ctx context.Context,filter *dto.FilterUserProductCarbonAbsorption,payload *dto.SearchGetRequest) (*dto.SearchGetResponse[dto.UserProductCarbonAbsorptionResponse], error) {
 
 	UserProductCarbonAbsorptions, info, err := s.UserProductCarbonAbsorptionRepository.Find(ctx,filter,payload, &payload.Pagination)
 	
@@ -35,8 +37,42 @@ func (s *service) Find(ctx context.Context,filter *dto.FilterUserProductCarbonAb
 		return nil, res.ErrorBuilder(&res.ErrorConstant.InternalServerError, err)
 	}
 
-	result := new(dto.SearchGetResponse[model.UserProductCarbonAbsorption])
-	result.Datas = UserProductCarbonAbsorptions
+	var data []dto.UserProductCarbonAbsorptionResponse
+	var url string
+
+	for _, value := range(UserProductCarbonAbsorptions){
+
+		var client = &http.Client{}
+
+		url = fmt.Sprintf("http://localhost:8080/users/%d", value.UserID)
+		request, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		response, err := client.Do(request)
+		if err != nil {
+			return nil, err
+		}
+		
+		defer response.Body.Close()
+
+		var result map[string]map[string]interface{}
+
+		json.NewDecoder(response.Body).Decode(&result)
+
+		data = append(data,dto.UserProductCarbonAbsorptionResponse{
+			UserProductCarbonAbsorption : value,
+			User : dto.UserProfileResponse{
+				Name : result["data"]["name"].(string),
+				Email : result["data"]["email"].(string),
+				CityID : result["data"]["city_id"].(string),
+			},
+		})
+	}
+
+	result := new(dto.SearchGetResponse[dto.UserProductCarbonAbsorptionResponse])
+	result.Datas = data
 	result.PaginationInfo = *info
 
 	return result, nil
