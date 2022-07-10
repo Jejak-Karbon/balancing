@@ -14,6 +14,7 @@ type Factory struct {
 func NewFactory() *Factory {
 	db := database.GetConnection()
 	return &Factory{
+		CategoryCarbonAbsorptionRepository: repository.NewCategoryCarbonAbsorption(db),
 		ProductCarbonAbsorptionRepository: repository.NewProductCarbonAbsorption(db),
 		UserProductCarbonAbsorptionRepository: repository.NewUserProductCarbonAbsorption(db),
 	}
