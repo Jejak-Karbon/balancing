@@ -1,11 +1,11 @@
 package user_product_carbon_absorption
 
 import (
-	"os"
-	"fmt"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/born2ngopi/alterra/basic-echo-mvc/internal/dto"
 	"github.com/born2ngopi/alterra/basic-echo-mvc/internal/factory"
@@ -21,7 +21,7 @@ type service struct {
 
 type Service interface {
 	Create(ctx context.Context, user_id uint, payload *dto.CreateUserProductCarbonAbsorption) (string, error)
-	Find(ctx context.Context,filter *dto.FilterUserProductCarbonAbsorption,payload *dto.SearchGetRequest) (*dto.SearchGetResponse[dto.UserProductCarbonAbsorptionResponse], error)
+	Find(ctx context.Context, filter *dto.FilterUserProductCarbonAbsorption, payload *dto.SearchGetRequest) (*dto.SearchGetResponse[dto.UserProductCarbonAbsorptionResponse], error)
 }
 
 func NewService(f *factory.Factory) Service {
@@ -30,10 +30,10 @@ func NewService(f *factory.Factory) Service {
 	}
 }
 
-func (s *service) Find(ctx context.Context,filter *dto.FilterUserProductCarbonAbsorption,payload *dto.SearchGetRequest) (*dto.SearchGetResponse[dto.UserProductCarbonAbsorptionResponse], error) {
+func (s *service) Find(ctx context.Context, filter *dto.FilterUserProductCarbonAbsorption, payload *dto.SearchGetRequest) (*dto.SearchGetResponse[dto.UserProductCarbonAbsorptionResponse], error) {
 
-	UserProductCarbonAbsorptions, info, err := s.UserProductCarbonAbsorptionRepository.Find(ctx,filter,payload, &payload.Pagination)
-	
+	UserProductCarbonAbsorptions, info, err := s.UserProductCarbonAbsorptionRepository.Find(ctx, filter, payload, &payload.Pagination)
+
 	if err != nil {
 		return nil, res.ErrorBuilder(&res.ErrorConstant.InternalServerError, err)
 	}
@@ -41,11 +41,11 @@ func (s *service) Find(ctx context.Context,filter *dto.FilterUserProductCarbonAb
 	var data []dto.UserProductCarbonAbsorptionResponse
 	var url string
 
-	for _, value := range(UserProductCarbonAbsorptions){
+	for _, value := range UserProductCarbonAbsorptions {
 
 		var client = &http.Client{}
 
-		url = fmt.Sprintf("http://localhost:8080/users/%d", value.UserID)
+		url = fmt.Sprintf(os.Getenv("URI_SERVICE_USERS")+"/users/%d", value.UserID)
 		request, err := http.NewRequest("GET", url, nil)
 		request.Header.Set("Authorization", os.Getenv("RANDOM_KEY"))
 		if err != nil {
@@ -56,19 +56,19 @@ func (s *service) Find(ctx context.Context,filter *dto.FilterUserProductCarbonAb
 		if err != nil {
 			return nil, err
 		}
-		
+
 		defer response.Body.Close()
 
 		var result map[string]map[string]interface{}
 
 		json.NewDecoder(response.Body).Decode(&result)
 
-		data = append(data,dto.UserProductCarbonAbsorptionResponse{
-			UserProductCarbonAbsorption : value,
-			User : dto.UserProfileResponse{
-				Name : result["data"]["name"].(string),
-				Email : result["data"]["email"].(string),
-				CityID : result["data"]["city_id"].(string),
+		data = append(data, dto.UserProductCarbonAbsorptionResponse{
+			UserProductCarbonAbsorption: value,
+			User: dto.UserProfileResponse{
+				Name:   result["data"]["name"].(string),
+				Email:  result["data"]["email"].(string),
+				CityID: result["data"]["city_id"].(string),
 			},
 		})
 	}
@@ -82,15 +82,14 @@ func (s *service) Find(ctx context.Context,filter *dto.FilterUserProductCarbonAb
 
 func (s *service) Create(ctx context.Context, user_id uint, payload *dto.CreateUserProductCarbonAbsorption) (string, error) {
 
-	data := model.UserProductCarbonAbsorption{UserID :user_id,ProductCarbonAbsorptionID:payload.ProductCarbonAbsorptionID}
+	data := model.UserProductCarbonAbsorption{UserID: user_id, ProductCarbonAbsorptionID: payload.ProductCarbonAbsorptionID}
 	fmt.Println(data)
 	err := s.UserProductCarbonAbsorptionRepository.Create(ctx, data)
 	if err != nil {
 		return "", res.ErrorBuilder(&res.ErrorConstant.InternalServerError, err)
 	}
 
-	message :=  "selamat kamu berhasil melakukan penyerapan emisi"
+	message := "selamat kamu berhasil melakukan penyerapan emisi"
 
 	return message, nil
 }
-
