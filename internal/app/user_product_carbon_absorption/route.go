@@ -1,4 +1,4 @@
-package user
+package user_product_carbon_absorption
 
 import (
 	"github.com/born2ngopi/alterra/basic-echo-mvc/internal/middleware"
@@ -6,6 +6,6 @@ import (
 )
 
 func (h *handler) Route(g *echo.Group) {
-	g.GET("", h.Get, middleware.Authentication)
-	g.GET("/:id", h.GetByID, middleware.Authentication)
+	g.GET("", h.Get)
+	g.POST("", h.Create,middleware.Authentication)
 }
