@@ -15,6 +15,7 @@ type UserProductCarbonAbsorption struct {
 	UserID       uint   	`json:"user_id" gorm:"not null"`
 	ProductCarbonAbsorptionID       uint   	`json:"product_carbon_absorption_id" gorm:"not null"`
 	Model
+	ProductCarbonAbsorption ProductCarbonAbsorption
 }
 
 func (u *UserProductCarbonAbsorption) BeforeCreate(tx *gorm.DB) (err error) {
