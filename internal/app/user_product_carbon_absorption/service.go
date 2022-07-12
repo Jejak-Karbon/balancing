@@ -46,7 +46,7 @@ func (s *service) Find(ctx context.Context, filter *dto.FilterUserProductCarbonA
 
 		var client = &http.Client{}
 
-		url = fmt.Sprintf("http://users.masudin.space/users/%d", value.UserID))
+		url = fmt.Sprintf("http://users.masudin.space/users/%d", value.UserID)
 		request, err := http.NewRequest("GET", url, nil)
 		request.Header.Set("Authorization", os.Getenv("RANDOM_KEY"))
 		if err != nil {
