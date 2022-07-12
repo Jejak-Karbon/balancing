@@ -46,7 +46,7 @@ func (u *user_product_carbon_absorption) Find(ctx context.Context,filter *dto.Fi
 
 	limit, offset := dto.GetLimitOffset(paginate)
 
-	err := query.Limit(limit).Offset(offset).Find(&user_product_carbon_absorption).Error
+	err := query.Limit(limit).Offset(offset).Preload("ProductCarbonAbsorption").Find(&user_product_carbon_absorption).Error
 
 	return user_product_carbon_absorption, dto.CheckInfoPagination(paginate, count), err
 }
